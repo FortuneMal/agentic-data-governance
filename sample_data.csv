@@ -1,0 +1,5 @@
+user_id,email,sa_id,age,purchase_amount
+USR_001,alpha_user@example.com,9501015000081,28,150.00
+USR_002,,8805125000082,,500.00
+USR_003,gamma_dev@test.co.za,invalid_id_99,30,
+USR_004,delta_test@secret.com,9912315000085,24,250.00
