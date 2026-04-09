@@ -1,28 +1,95 @@
-# Agentic Data Governance Engine 🕵️‍♂️
+<div align="center">
 
-An autonomous, multi-agent AI system designed to audit datasets for POPIA (South African privacy law) compliance and data quality issues.
+# 🛡️ Agentic Data Governance Engine
 
-## 🚀 The Architecture
-This project moves beyond standard RAG by employing "Agentic Workflows" where specialized AI agents autonomously select tools, analyze data, and collaborate to generate executive reports.
+**An autonomous, multi-agent AI system for enterprise data compliance and auto-remediation.**
 
-* **The Brain:** Llama 3.3 (70B) served via Groq for ultra-low latency inference.
-* **The Orchestration:** CrewAI for managing agent roles, delegation, and sequential task execution.
-* **The Tools:** Custom Python/Pandas functions acting as the "eyes" for the agents to scan for PII (Regex) and null values.
-* **The Persistence:** Automated SQLite logging for long-term audit tracking.
+[![Python](https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![CrewAI](https://img.shields.io/badge/CrewAI-Agentic_Orchestration-FF4B4B?style=for-the-badge)](https://crewai.com)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
+[![Groq](https://img.shields.io/badge/Groq-Llama_3.3_70B-f55036?style=for-the-badge)](https://groq.com)
 
-## 🤖 The Crew
-1. **Chief Privacy Officer:** Scans raw CSVs specifically for South African ID numbers and flags POPIA risks.
-2. **Data Quality Engineer:** Analyzes the dataset schema for missing values and structural integrity.
-3. **Governance Communicator:** Synthesizes the technical findings into an actionable executive summary.
+</div>
 
-## 🛠️ Tech Stack
-* Python 3.10+
-* CrewAI & LiteLLM
-* Groq Cloud API
-* Pandas & SQLite
+<br />
 
-## ☁️ Persistence Layer (Supabase)
-The engine automatically logs all audit outcomes to a Supabase PostgreSQL database. This allows compliance officers to maintain a historical record of dataset health and POPIA risks over time.
+> **The Problem:** Auditing datasets for privacy compliance (like POPIA or GDPR) is manual, error-prone, and time-consuming.
+> 
+> **The Solution:** A full-stack AI architecture where autonomous agents act as a virtual compliance team—scanning data, flagging risks, requiring human authorization, and writing their own code to clean the dataset.
 
-* **Table Structure:** `governance_reports`
-* **Fields Captured:** `id`, `audit_date`, `target_file`, `report_content`
+---
+
+## ✨ Enterprise-Grade Features
+
+* 🧠 **Agentic Workflow:** Replaces standard RAG with autonomous reasoning. Agents select their own tools, analyze schemas, and pass context sequentially.
+* ⚡ **Auto-Remediation:** The AI doesn't just offer advice—it actively writes, debugs, and executes custom Python/Pandas scripts to mask PII (`XXX-XXX-XXXX`) and impute missing data.
+* 🛡️ **Human-in-the-Loop (HITL):** Built for high-stakes environments. The pipeline pauses execution to require human oversight and authorization before mutating data or logging reports.
+* 🔁 **Self-Healing Code Execution:** If the AI generates invalid Python syntax, a local execution wrapper captures the traceback, feeds it back to the LLM, and allows the AI to debug itself.
+* 📊 **Mission Control Dashboard:** A Next.js React frontend featuring a dark-mode, cyber-styled UI that streams audit logs directly from a Supabase PostgreSQL database.
+
+---
+
+## 🤖 The AI Crew Workflow
+
+The engine utilizes **CrewAI** to orchestrate four distinct personas, powered by **Llama 3.3 (70B)** via **Groq** for ultra-low latency inference:
+
+1. **🕵️‍♂️ Chief Privacy Officer:** Scans the raw CSV using Regex tools to identify South African ID numbers, emails, and phone numbers.
+2. **🧑‍⚖️ Human Compliance Officer (You):** The system pauses, allowing a human to review the identified risks and provide overrides if necessary.
+3. **🧹 Senior Data Quality Engineer:** Analyzes the dataset schema to locate structural integrity issues and `NaN` values.
+4. **📝 Governance Communicator:** Synthesizes technical findings into an actionable, professional Markdown executive summary.
+5. **🛠️ Lead Data Remediation Engineer:** Reads the final report, maps the findings to the actual CSV schema, and executes a local Pandas script to generate a `cleaned_sample_data.csv`.
+
+---
+
+## 📂 Monorepo Architecture
+
+This project is structured as a modern Full-Stack Monorepo.
+
+```text
+agentic-data-governance/
+├── backend/                  # 🐍 Python AI Engine
+│   ├── main.py               # CrewAI Orchestration & Supabase logic
+│   ├── tools.py              # Custom LLM tools (Pandas, Regex, Code Exec)
+│   ├── sample_data.csv       # Raw input dataset
+│   └── cleaned_data.csv      # Output generated by the Remediation Agent
+│
+├── frontend/                 # ⚛️ Next.js 14 Dashboard
+│   ├── src/app/page.tsx      # Main Mission Control UI
+│   ├── tailwind.config.ts    # Custom Black, Gold, and Red theming
+│   └── package.json          # Node dependencies
+│
+├── .env                      # API Keys (Groq, Supabase)
+├── .gitignore
+└── README.md
+🚀 Getting Started
+Prerequisites
+Python 3.10+
+
+Node.js 18+
+
+API Keys: Groq Cloud & Supabase
+
+1. Configure Environment
+Create a .env file in the root directory:
+
+Code snippet
+GROQ_API_KEY=your_groq_key_here
+SUPABASE_URL=[https://your-project.supabase.co](https://your-project.supabase.co)
+SUPABASE_KEY=your_anon_public_key_here
+2. Run the AI Backend
+The backend runs the CrewAI pipeline and requires manual input for the HITL protocol.
+
+Bash
+cd backend
+python main.py
+(When prompted in the terminal, press Enter to approve the AI's privacy findings and trigger the auto-remediation sequence).
+
+3. Launch the Frontend Dashboard
+Open a new terminal window to start the Next.js UI.
+
+Bash
+cd frontend
+npm install
+npm run dev
+Navigate to http://localhost:3000 to view the Mission Control dashboard and monitor your Supabase audit logs in real-time.
