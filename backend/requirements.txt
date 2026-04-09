@@ -1,0 +1,10 @@
+# Orchestration & LLM
+crewai
+litellm
+
+# Data Processing
+pandas
+
+# Database & Environment
+supabase
+python-dotenv
