@@ -53,6 +53,11 @@ def scan_quality_tool(file_path: str) -> str:
     """Scans a CSV file and extracts missing values and data gaps."""
     return DataTools.get_data_stats(file_path)
 
+@tool("Python Execution Tool")
+def run_code_tool(code: str) -> str:
+    """Executes Python code to clean datasets. Input must be raw Python code."""
+    return DataTools.execute_pandas_code(code)
+
 DATA_FILE = "sample_data.csv"
 
 # ==========================================
@@ -97,6 +102,22 @@ documentation_librarian = Agent(
     llm=llm
 )
 
+remediation_engineer = Agent(
+    role='Lead Data Remediation Engineer',
+    goal='Write and execute Python code to fix data quality and privacy issues.',
+    backstory=(
+        'You are a brilliant Senior Python developer. You receive audit reports '
+        'and write pandas code to clean CSV files. You always save the fixed '
+        'data to a new file called `cleaned_sample_data.csv`. You mask PII (like ID numbers '
+        'and phone numbers) by replacing them with "XXX-XXX-XXXX". You fill missing '
+        'numerical values with 0 and missing text with "Unknown".'
+    ),
+    verbose=True,
+    allow_delegation=False,
+    tools=[run_code_tool], # This gives the agent the ability to run code
+    llm=llm
+)
+
 # ==========================================
 # 4. DEFINE THE TASKS 
 # ==========================================
@@ -104,7 +125,8 @@ documentation_librarian = Agent(
 privacy_task = Task(
     description=f'Scan the dataset located at {DATA_FILE} for PII. List the exact columns that pose a POPIA risk.',
     expected_output='A bulleted list of columns containing potential PII and a brief explanation of why they are risky under POPIA.',
-    agent=privacy_officer
+    agent=privacy_officer,
+    human_input=True
 )
 
 quality_task = Task(
@@ -120,13 +142,27 @@ reporting_task = Task(
     context=[privacy_task, quality_task] 
 )
 
+remediation_task = Task(
+    description=(
+        f'Read the final executive summary. Write and execute a Python pandas script '
+        f'using your tool to clean {DATA_FILE} based on the findings. '
+        f'CRITICAL: The summary might use descriptive names (like "email_address" or "phone_number"). '
+        f'You must strictly map those to the actual CSV columns: user_id, email, sa_id, age, purchase_amount. '
+        f'Ignore any columns in the report that do not exist in this list. '
+        f'Ensure the new file is saved as "cleaned_sample_data.csv".'
+    ),
+    expected_output='A confirmation message that the Python code ran successfully and the new file was created.',
+    agent=remediation_engineer,
+    context=[reporting_task] 
+)
+
 # ==========================================
 # 5. ASSEMBLE AND RUN THE CREW
 # ==========================================
 
 governance_crew = Crew(
-    agents=[privacy_officer, data_janitor, documentation_librarian],
-    tasks=[privacy_task, quality_task, reporting_task],
+    agents=[privacy_officer, data_janitor, documentation_librarian, remediation_engineer],
+    tasks=[privacy_task, quality_task, reporting_task, remediation_task],
     process=Process.sequential 
 )
 
@@ -153,7 +189,8 @@ def main():
         print("\n" + "="*50)
         print("FINAL GOVERNANCE REPORT")
         print("="*50 + "\n")
-        print(result.raw) 
+        # FIX: Explicitly grab the output from the reporting task
+        print(reporting_task.output.raw) 
         
         # 2. Save to Supabase
         logging.info("Connecting to Supabase Cloud...")
@@ -162,7 +199,7 @@ def main():
         # Insert the new report
         data, count = supabase.table('governance_reports').insert({
             "target_file": DATA_FILE, 
-            "report_content": result.raw
+            "report_content": reporting_task.output.raw # FIX: Save the actual report
         }).execute()
         
         logging.info("Report permanently saved to Supabase!")
