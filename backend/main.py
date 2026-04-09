@@ -147,7 +147,7 @@ remediation_task = Task(
         f'Read the final executive summary. Write and execute a Python pandas script '
         f'using your tool to clean {DATA_FILE} based on the findings. '
         f'CRITICAL: The summary might use descriptive names (like "email_address" or "phone_number"). '
-        f'You must strictly map those to the actual CSV columns: user_id, email, sa_id, age, purchase_amount. '
+        f'You must strictly map those to the actual CSV columns: user_id, email, sa_id, phone_number, age, purchase_amount. '
         f'Ignore any columns in the report that do not exist in this list. '
         f'Ensure the new file is saved as "cleaned_sample_data.csv".'
     ),
