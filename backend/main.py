@@ -126,7 +126,7 @@ privacy_task = Task(
     description=f'Scan the dataset located at {DATA_FILE} for PII. List the exact columns that pose a POPIA risk.',
     expected_output='A bulleted list of columns containing potential PII and a brief explanation of why they are risky under POPIA.',
     agent=privacy_officer,
-    human_input=True
+    human_input=False
 )
 
 quality_task = Task(
