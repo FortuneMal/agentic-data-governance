@@ -23,6 +23,7 @@ def run_ai_engine():
     subprocess.run(["python", "main.py"])
 
 @app.get("/")
+@app.head("/")
 def health_check():
     return {"status": "GovEngine AI is Online and Ready."}
 
