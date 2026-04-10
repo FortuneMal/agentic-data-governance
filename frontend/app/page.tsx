@@ -26,6 +26,24 @@ export default function Dashboard() {
   const [selectedReport, setSelectedReport] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('report');
+  const [isTriggering, setIsTriggering] = useState(false);
+
+  const handleTriggerAudit = async () => {
+    setIsTriggering(true);
+    try {
+      const response = await fetch('https://govengine-ai.onrender.com/api/trigger-audit', {
+        method: 'POST',
+      });
+      
+      const data = await response.json();
+      alert(data.message); // A simple pop-up to let you know it worked!
+      
+    } catch (error) {
+      console.error("Failed to trigger:", error);
+      alert("Error waking up the AI agents.");
+    }
+    setIsTriggering(false);
+  };
 
   useEffect(() => {
     fetchReports();
@@ -63,9 +81,17 @@ export default function Dashboard() {
         </div>
 
         <div className="p-4">
-          <button className="w-full bg-amber-500 hover:bg-amber-400 text-black py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 font-bold transition-all shadow-[0_0_15px_rgba(245,158,11,0.25)]">
-            <Play size={16} fill="currentColor" />
-            Trigger New Audit
+          <button 
+            onClick={handleTriggerAudit}
+            disabled={isTriggering}
+            className={`w-full py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 font-bold transition-all shadow-[0_0_15px_rgba(245,158,11,0.25)] ${
+              isTriggering 
+                ? 'bg-zinc-600 text-zinc-400 cursor-not-allowed' 
+                : 'bg-amber-500 hover:bg-amber-400 text-black'
+            }`}
+          >
+            {isTriggering ? <Activity size={16} className="animate-spin" /> : <Play size={16} fill="currentColor" />}
+            {isTriggering ? 'Agents Auditing...' : 'Trigger New Audit'}
           </button>
         </div>
 
